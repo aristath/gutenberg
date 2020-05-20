@@ -445,7 +445,7 @@ export function ImageEdit( {
 		</>
 	);
 
-	// Disable reason: Each block can be selected by clicking on it
+	// Disable reason: Each block can be selected by clicking on it.
 	/* eslint-disable jsx-a11y/click-events-have-key-events */
 	return (
 		<>

@@ -147,8 +147,10 @@ function gutenberg_experimental_global_styles_get_user_cpt( $should_create_cpt =
 	);
 
 	if ( is_array( $recent_posts ) && ( count( $recent_posts ) === 1 ) ) {
-		$user_cpt = $recent_posts[0];
-	} elseif ( $should_create_cpt ) {
+		return $recent_posts[0];
+	}
+
+	if ( $should_create_cpt ) {
 		$cpt_post_id = wp_insert_post(
 			array(
 				'post_content' => '{}',
@@ -158,7 +160,7 @@ function gutenberg_experimental_global_styles_get_user_cpt( $should_create_cpt =
 			),
 			true
 		);
-		$user_cpt    = get_post( $cpt_post_id, ARRAY_A );
+		return get_post( $cpt_post_id, ARRAY_A );
 	}
 
 	return $user_cpt;
@@ -170,12 +172,11 @@ function gutenberg_experimental_global_styles_get_user_cpt( $should_create_cpt =
  * @return integer
  */
 function gutenberg_experimental_global_styles_get_user_cpt_id() {
-	$user_cpt_id = null;
-	$user_cpt    = gutenberg_experimental_global_styles_get_user_cpt( true );
+	$user_cpt = gutenberg_experimental_global_styles_get_user_cpt( true );
 	if ( array_key_exists( 'ID', $user_cpt ) ) {
-		$user_cpt_id = $user_cpt['ID'];
+		return $user_cpt['ID'];
 	}
-	return $user_cpt_id;
+	return null;
 }
 
 /**
@@ -184,11 +185,9 @@ function gutenberg_experimental_global_styles_get_user_cpt_id() {
  * @return array Config that adheres to the theme.json schema.
  */
 function gutenberg_experimental_global_styles_get_core() {
-	$config = gutenberg_experimental_global_styles_get_from_file(
+	return gutenberg_experimental_global_styles_get_from_file(
 		__DIR__ . '/experimental-default-theme.json'
 	);
-
-	return $config;
 }
 
 /**
@@ -253,12 +252,10 @@ function gutenberg_experimental_global_styles_get_theme() {
 	 *   via theme.json, the later takes precedence.
 	 *
 	 */
-	$theme_config = gutenberg_experimental_global_styles_merge_trees(
+	return gutenberg_experimental_global_styles_merge_trees(
 		$theme_presets,
 		$theme_config
 	);
-
-	return $theme_config;
 }
 
 /**
@@ -421,7 +418,7 @@ function gutenberg_experimental_global_styles_resolver( $tree ) {
 			! array_key_exists( 'supports', $block_data[ $block_name ] )
 		) {
 			// Skip blocks that haven't declared support,
-			// because we don't know to process them.
+			// because we don't know how to process them.
 			continue;
 		}
 
@@ -452,7 +449,7 @@ function gutenberg_experimental_global_styles_resolver( $tree ) {
 		// To support all themes, we added in the block-library stylesheet
 		// a style rule such as .has-link-color a { color: var(--wp--style--color--link, #00e); }
 		// so that existing link colors themes used didn't break.
-		// We add this here to make it work for themes that opt-in to theme.json
+		// We add this here to make it work for themes that opt-in to theme.json,
 		// In the future, we may do this differently.
 		$stylesheet .= 'a { color: var(--wp--style--color--link, #00e); }';
 	}
@@ -549,12 +546,10 @@ function gutenberg_experimental_global_styles_normalize_schema( $tree ) {
 		$normalized_tree[ $block_name ] = $block_schema;
 	}
 
-	$tree = array_merge_recursive(
+	return array_merge_recursive(
 		$normalized_tree,
 		$tree
 	);
-
-	return $tree;
 }
 
 /**
@@ -564,12 +559,11 @@ function gutenberg_experimental_global_styles_normalize_schema( $tree ) {
  * @return array Merged trees.
  */
 function gutenberg_experimental_global_styles_get_merged_origins() {
-	$core   = gutenberg_experimental_global_styles_get_core();
-	$theme  = gutenberg_experimental_global_styles_get_theme();
-	$user   = gutenberg_experimental_global_styles_get_user();
-	$merged = gutenberg_experimental_global_styles_merge_trees( $core, $theme, $user );
+	$core  = gutenberg_experimental_global_styles_get_core();
+	$theme = gutenberg_experimental_global_styles_get_theme();
+	$user  = gutenberg_experimental_global_styles_get_user();
 
-	return $merged;
+	return gutenberg_experimental_global_styles_merge_trees( $core, $theme, $user );
 }
 
 /**
